@@ -4,10 +4,9 @@ class Token:
         self.nombre = nombre
         self.valor = valor
     
-    @property
     def getNombre(self):
         return self.__nombre
-    @property
+    
     def getValor(self):
         return self.__valor
         
