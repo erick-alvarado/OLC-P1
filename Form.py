@@ -1,9 +1,13 @@
 from tkinter import Tk, Menu, messagebox, filedialog, ttk, Label, scrolledtext, INSERT, END, Button, Scrollbar, RIGHT, Y, Frame, Canvas, HORIZONTAL, VERTICAL, simpledialog
 from tkinter.ttk import LabelFrame
+from LexicoHtml import lexicoHtml
 
 root = Tk()
 root.title("Proyecto 1")
 archivo = ""
+
+lexHTML = lexicoHtml()
+
 
 def new():
     global archivo
@@ -55,6 +59,7 @@ def saveAs():
         print("-Ha ocurrido un error en guardar como")
 
 
+
 barraMenu = Menu(root)
 root.config(menu = barraMenu, width = 1000, height = 600)
 
@@ -83,7 +88,8 @@ editor.pack(side = "left")
 consola = scrolledtext.ScrolledText(frame2,width=50,height=25)
 consola.pack(side = "right")
 
-btn = Button(root, text="Analizar")
+btn = Button(root, text="Analizar", command = lambda: lexHTML.analizarHTML(editor.get('1.0', 'end-1c')))
 btn.pack(side = "top",pady = 200)
 
 root.mainloop()
+
