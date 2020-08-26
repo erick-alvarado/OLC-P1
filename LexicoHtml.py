@@ -12,6 +12,7 @@ class lexicoHtml:
    texto = ""
    lista_token = []
    lista_errores =[]
+   lista_pos_error=[]
 
    lenguaje = {
       "html":"ETIQUETA_HTML",
@@ -105,6 +106,18 @@ class lexicoHtml:
             self.errorLexico(self.cadena,self.columna,self.fila)
 
 
+   def textoFinal(self):
+      s = list(self.texto)
+      for x in self.lista_pos_error:
+         s[x]=" "
+
+      str1 = ''.join(s)
+      
+      print(str1)     
+      return str1
+
+
+
 
 
 
@@ -168,6 +181,7 @@ class lexicoHtml:
 
    def errorLexico(self,texto,x,y):
       print ("ERROR LEXICO" +" : "+texto)
+      self.lista_pos_error.append(self.contador)
       self.cadena = ""
       self.lista_errores.append(Error(x,y,"Cadena no reconocida: "+texto))
 

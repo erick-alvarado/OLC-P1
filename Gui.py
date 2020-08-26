@@ -1,6 +1,7 @@
 from tkinter import Tk, Menu, messagebox, filedialog, ttk, Label, scrolledtext, INSERT, END, Button, Scrollbar, RIGHT, Y, Frame, Canvas, HORIZONTAL, VERTICAL, simpledialog
 from tkinter.ttk import LabelFrame
 from LexicoHtml import lexicoHtml
+from LexicoCss import lexicoCss
 
 
 class GUI:
@@ -10,7 +11,8 @@ class GUI:
         self.root.title("Proyecto 1")
         self.archivo = ""
 
-        lexHTML = lexicoHtml()
+        self.lexHTML = lexicoHtml()
+        self.lexCSS = lexicoCss()
 
         self.barraMenu = Menu(self.root)
         self.root.config(menu=self.barraMenu, width=1000, height=600)
@@ -40,8 +42,7 @@ class GUI:
         self.consola = scrolledtext.ScrolledText(self.frame2, width=50, height=25)
         self.consola.pack(side="right")
 
-        self.btn = Button(self.root, text="Analizar", command=lambda: lexHTML.analizarHTML(
-            self.editor.get('1.0', 'end-1c')))
+        self.btn = Button(self.root, text="Analizar", command=self.iniciarAnalisis)
         self.btn.pack(side="top", pady=200)
 
         self.root.mainloop()
@@ -50,6 +51,11 @@ class GUI:
         self.archivo
         self.editor.delete(1.0, END)
         self.archivo = ""
+
+    def iniciarAnalisis(self):
+        self.lexCSS.analizarCss(self.editor.get('1.0', 'end-1c'))
+        self.editor.delete(1.0, END)
+        self.editor.insert(INSERT, self.lexHTML.textoFinal())
 
     def openFile(self):
         self.archivo
