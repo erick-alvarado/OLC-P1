@@ -16,6 +16,7 @@ class lexicoCss:
 
    lenguaje = {
       "color":"PROPIEDAD_COLOR",
+      "content":"PROPIEDAD_CONTENT",
       "background-color":"PROPIEDAD_BACKGROUND_COLOR",
       "background-image":"PROPIEDAD_BACKGROUND_IMAGE",
       "border":"PROPIEDAD_BORDER"  ,
@@ -65,9 +66,15 @@ class lexicoCss:
       "pc": "VAL_UNIDAD_PC" ,
 
       "relative": "VAL_ID_RELATIVE" ,
+      "center": "VAL_ID_CENTER" ,
+      "absolute": "VAL_ID_ABSOLUTE" ,
       "inline-bloack": "VAL_ID_INLINE_BLOCK" ,
+      "solid": "VAL_ID_SOLID" ,
 
       "red": "VAL_COLOR_RED" ,
+      "purple": "VAL_COLOR_PURPLE" ,
+      "yellow": "VAL_COLOR_YELLOW" ,
+      "gray": "VAL_COLOR_GRAY" ,
       "rgba": "VAL_COLOR_RGBA" ,
 
       "%": "SIM_PORCENTAJE" ,
@@ -110,8 +117,33 @@ class lexicoCss:
          elif self.char=='\n' :
             self.columna=0
             self.fila+=1
-         
+         elif self.char=='\"' :
+            self.cadena+=self.char
+            nombre = self.lenguaje.get(self.cadena)
+            self.guardar(nombre,self.cadena)
+            self.cadena=""
+            self.contador+=1
+            self.estadoCaracter2()
+         elif self.char=='/' :
+            self.cadena+=self.char
+            nombre = self.lenguaje.get(self.cadena)
+            self.guardar(nombre,self.cadena)
+            self.cadena=""
+
+            self.contador+=1
+            self.char  = self.texto[self.contador]
+            if(self.char == '*'):
+               self.cadena+=self.char
+               nombre = self.lenguaje.get(self.cadena)
+               self.guardar(nombre,self.cadena)
+               self.cadena=""
+               self.contador+=1
+               self.estadoCaracter()
+            else:
+               self.contador-=1
+
          elif not self.lenguaje.get(self.char) == None:
+
             self.cadena+=self.char
             nombre = self.lenguaje.get(self.cadena)
             self.guardar(nombre,self.cadena)
@@ -131,12 +163,12 @@ class lexicoCss:
 
    def textoFinal(self):
       s = list(self.texto)
+      
       for x in self.lista_pos_error:
          s[x]=" "
 
       str1 = ''.join(s)
-      
-      print(str1)     
+          
       return str1
 
 
@@ -147,32 +179,22 @@ class lexicoCss:
 
    def estadoLetra(self):
 
-      if(self.texto[self.contador-2]=="*"and self.texto[self.contador-3]=="/"):
-         self.estadoCaracter()
-      else:
-            
+      self.char  = self.texto[self.contador]
+      while(self.char.isalpha() or self.texto[self.contador]=="-"):
+         self.cadena+=self.char
+         self.contador+=1
          self.char  = self.texto[self.contador]
-         while(self.char.isalpha() or self.texto[self.contador]=="-"):
-            self.cadena+=self.char
-            self.contador+=1
-            self.char  = self.texto[self.contador]
 
-         if self.texto[self.contador].isdigit():
-            self.estadoNumero()
+      if self.texto[self.contador].isdigit():
+         self.estadoNumero()
 
+      else:
+         self.contador-=1
+         nombre = self.lenguaje.get(self.cadena)
+         if(not nombre==None):
+            self.guardar(nombre,self.cadena)
          else:
-            self.contador-=1
-            nombre = self.lenguaje.get(self.cadena)
-            if(not nombre==None):
-               self.guardar(nombre,self.cadena)
-            else:
-               self.guardar("ID",self.cadena)
-         
-
-          
-         
-         
-
+            self.guardar("ID",self.cadena)
       self.cadena=""
       
       
@@ -196,7 +218,7 @@ class lexicoCss:
 
    def estadoCaracter(self):
       self.char  = self.texto[self.contador]
-      while(not self.char=="*" and not self.texto[self.contador+1]=="/"):
+      while(not self.char=="*"):
          self.cadena+=self.char
          self.contador+=1
          self.char  = self.texto[self.contador]
@@ -204,6 +226,17 @@ class lexicoCss:
       self.guardar("COMENTARIO",self.cadena)
       self.cadena=""
       self.contador-=1
+   
+   def estadoCaracter2(self):
+      self.char  = self.texto[self.contador]
+      while(not self.char=='\"'):
+         self.cadena+=self.char
+         self.contador+=1
+         self.char  = self.texto[self.contador]
+      
+      self.guardar("CADENA",self.cadena)
+      self.guardar("SIM_COMILLA",self.char)
+      self.cadena=""
 
 
    def guardar(self, texto,val):

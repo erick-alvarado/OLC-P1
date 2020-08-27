@@ -53,7 +53,7 @@ class GUI:
         self.archivo = ""
 
     def iniciarAnalisis(self):
-        self.lexCSS.analizarCss(self.editor.get('1.0', 'end-1c'))
+        self.lexHTML.analizarHTML(self.editor.get('1.0', 'end-1c'))
         self.editor.delete(1.0, END)
         self.editor.insert(INSERT, self.lexHTML.textoFinal())
 

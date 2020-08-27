@@ -58,8 +58,8 @@ class lexicoHtml:
       "px" : "ESTILO_PX",
       "border" : "ESTILO_BORDER",
 
-      "<": "SIM_ABRE_GUION" ,
-      ">": "SIM_CIERRA_GUION",
+      "<": "SIM_MENOR" ,
+      ">": "SIM_MAYOR",
       "/": "SIM_BARRA" ,
       "\'": "SIM_COMILLA",
       "\"": "SIM_COMILLA_DOBLE" ,
@@ -87,6 +87,27 @@ class lexicoHtml:
          elif self.char=='\n' :
             self.columna=0
             self.fila+=1
+         elif self.char=='>' :
+            self.cadena+=self.char
+            nombre = self.lenguaje.get(self.cadena)
+            self.guardar(nombre,self.cadena)
+            self.cadena=""
+            self.contador+=1
+            self.estadoCaracter2()
+         elif self.char=='\"' :
+            self.cadena+=self.char
+            nombre = self.lenguaje.get(self.cadena)
+            self.guardar(nombre,self.cadena)
+            self.cadena=""
+            self.contador+=1
+            self.estadoCaracter()
+         elif self.char=='\'' :
+            self.cadena+=self.char
+            nombre = self.lenguaje.get(self.cadena)
+            self.guardar(nombre,self.cadena)
+            self.cadena=""
+            self.contador+=1
+            self.estadoCaracter3()
          
          elif not self.lenguaje.get(self.char) == None:
             self.cadena+=self.char
@@ -123,30 +144,25 @@ class lexicoHtml:
 
 
    def estadoLetra(self):
-
-      if(self.texto[self.contador-2]=="\""or self.texto[self.contador-2]=="\'" or self.texto[self.contador-2]==">"):
-         self.estadoCaracter()
-
+      n = len(self.lista_token)
+      self.char = self.texto[self.contador]
+      if(self.char.isnumeric() and self.texto[self.contador-1] == 'h'):
+         self.cadena += self.char
       else:
-            
-         self.char  = self.texto[self.contador]
-         if(self.char.isnumeric() and self.texto[self.contador-1]=='h'):
-            self.cadena+=self.char
-         else:
-            while(self.char.isalpha()):
-               self.cadena+=self.char
-               self.contador+=1
-               self.char  = self.texto[self.contador]
-               
-            self.contador-=1
-         
-         nombre = self.lenguaje.get(self.cadena)
-         if(not nombre==None):
-            self.guardar(nombre,self.cadena)
-         else:
-            self.errorLexico(self.cadena,self.columna,self.fila)
+         while(self.char.isalpha()):
+            self.cadena += self.char
+            self.contador += 1
+            self.char = self.texto[self.contador]
 
-      self.cadena=""
+         self.contador -= 1
+
+      nombre = self.lenguaje.get(self.cadena)
+      if(not nombre == None):
+         self.guardar(nombre, self.cadena)
+      else:
+         self.errorLexico(self.cadena, self.columna, self.fila)
+
+      self.cadena = ""
       
       
    def estadoNumero(self):
@@ -164,17 +180,42 @@ class lexicoHtml:
 
    def estadoCaracter(self):
       self.char  = self.texto[self.contador]
-      while(not self.char=="<" and not self.char=="\""and not self.char=="\'"):
+      while(not self.char=="\""):
          self.cadena+=self.char
          self.contador+=1
          self.char  = self.texto[self.contador]
-         
-      
+
       self.guardar("CADENA_TEXTO",self.cadena)
+      self.guardar("SIM_COMILLA_DOBLE",self.char)
       self.cadena=""
-      self.contador-=1
+   def estadoCaracter3(self):
+      self.char  = self.texto[self.contador]
+      while(not self.char=='\''):
+         self.cadena+=self.char
+         self.contador+=1
+         self.char  = self.texto[self.contador]
 
+      self.guardar("CADENA_TEXTO",self.cadena)
+      self.guardar("SIM_COMILLA",self.char)
+      self.cadena=""
+   def estadoCaracter2(self):
+      try:
+         self.char  = self.texto[self.contador]
+         while(not self.char=='<'):
+            if(not self.char == '\n' and not self.char == '\t' and not self.char == '\r' ):
+               self.cadena+=self.char
+            self.contador+=1
+            self.char  = self.texto[self.contador]
 
+         if len(self.cadena)>0:
+            self.guardar("CADENA",self.cadena)
+            self.guardar("SIM_MENOR",self.char)
+            self.cadena=""
+         else:
+            self.contador-=1
+      except:
+         print("fin de la cadena")
+      
    def guardar(self, texto,val):
       print (texto +" : "+val)
       self.lista_token.append(Token(texto,val))
