@@ -2,6 +2,7 @@ from tkinter import Tk, Menu, messagebox, filedialog, ttk, Label, scrolledtext, 
 from tkinter.ttk import LabelFrame
 from LexicoHtml import lexicoHtml
 from LexicoCss import lexicoCss
+from LexicoJs import lexicoJs
 
 
 class GUI:
@@ -13,6 +14,7 @@ class GUI:
 
         self.lexHTML = lexicoHtml()
         self.lexCSS = lexicoCss()
+        self.lexJs = lexicoJs()
 
         self.barraMenu = Menu(self.root)
         self.root.config(menu=self.barraMenu, width=1000, height=600)
@@ -53,7 +55,7 @@ class GUI:
         self.archivo = ""
 
     def iniciarAnalisis(self):
-        self.lexHTML.analizarHTML(self.editor.get('1.0', 'end-1c'))
+        self.lexJs.analizarJs(self.editor.get('1.0', 'end-1c'))
         self.editor.delete(1.0, END)
         self.editor.insert(INSERT, self.lexHTML.textoFinal())
 

@@ -2,7 +2,7 @@ from enum import Enum
 from Token import Token
 from Error import Error
 
-class lexicoCss:
+class lexicoJs:
    
    fila = 1
    columna = 0
@@ -15,93 +15,59 @@ class lexicoCss:
    lista_pos_error=[]
 
    lenguaje = {
-      "color":"PROPIEDAD_COLOR",
-      "content":"PROPIEDAD_CONTENT",
-      "background-color":"PROPIEDAD_BACKGROUND_COLOR",
-      "background-image":"PROPIEDAD_BACKGROUND_IMAGE",
-      "border":"PROPIEDAD_BORDER"  ,
-      "opacity":"PROPIEDAD_OPACITY"  ,
-      "background":"PROPIEDAD_BACKGROUND",
-      "text-align":"PROPIEDAD_TEXT_ALIGN" ,
-      "font-weight": "PROPIEDAD_FONT_WEIGHT" ,
-      "font-family": "PROPIEDAD_FONT_FAMILY" ,
-      "font-style": "PROPIEDAD_FONT_STYLE" ,
-      "font-size": "PROPIEDAD_FONT_SIZE" ,
-      "font": "PROPIEDAD_FONT" ,
-      "padding": "PROPIEDAD_PADDING" ,
-      "padding-left": "PROPIEDAD_PADDING_LEFT" ,
-      "padding-right": "PROPIEDAD_PADDING_RIGHT" ,
-      "padding-bottom": "PROPIEDAD_PADDING_BOTTOM" ,
-      "padding-top": "PROPIEDAD_PADDING_TOP" ,
-      "display": "PROPIEDAD_DISPLAY" ,
-      "line-height": "PROPIEDAD_LINE_HEIGHT" ,
-      "width": "PROPIEDAD_WIDTH" ,
-      "height": "PROPIEDAD_HEIGHT" ,
-      "margin": "PROPIEDAD_MARGIN" ,
-      "margin-top": "PROPIEDAD_MARGIN_TOP" ,
-      "margin-right": "PROPIEDAD_MARGIN_RIGHT" ,
-      "margin-bottom": "PROPIEDAD_MARGIN_BOTTOM" ,
-      "margin-left": "PROPIEDAD_MARGIN_LEFT" ,
-      "border-style": "PROPIEDAD_BODER_STYLE" ,
-      "display": "PROPIEDAD_DISPLAY" ,
-      "position": "PROPIEDAD_POSITION" ,
-      "bottom": "PROPIEDAD_BOTTOM" ,
-      "top": "PROPIEDAD_TOP" ,
-      "right": "PROPIEDAD_RIGHT" ,
-      "left": "PROPIEDAD_LEFT" ,
-      "float": "PROPIEDAD_FLOAT" ,
-      "clear": "PROPIEDAD_CLEAR" ,
-      "max-width": "PROPIEDAD_MAX_WIDTH" ,
-      "max-height": "PROPIEDAD_MAX_HEIGHT" ,
-      "min-width": "PROPIEDAD_MIN_WIDTH" ,
-      "min-height": "PROPIEDAD_MIN_HEIGHT" ,
-      "px": "VAL_UNIDAD_PX" ,
-      "em": "VAL_UNIDAD_EM" ,
-      "vh": "VAL_UNIDAD_VH" ,
-      "vw": "VAL_UNIDAD_VW" ,
-      "in": "VAL_UNIDAD_IN" ,
-      "cm": "VAL_UNIDAD_CM" ,
-      "mm": "VAL_UNIDAD_MM" ,
-      "pt": "VAL_UNIDAD_PT" ,
-      "pc": "VAL_UNIDAD_PC" ,
+      "var":"TIPO_VARIABLE",
 
-      "relative": "VAL_ID_RELATIVE" ,
-      "center": "VAL_ID_CENTER" ,
-      "absolute": "VAL_ID_ABSOLUTE" ,
-      "inline-bloack": "VAL_ID_INLINE_BLOCK" ,
-      "solid": "VAL_ID_SOLID" ,
+      "true":"VALOR_TRUE",
+      "false":"VALOR_FALSE",
 
-      "red": "VAL_COLOR_RED" ,
-      "purple": "VAL_COLOR_PURPLE" ,
-      "yellow": "VAL_COLOR_YELLOW" ,
-      "gray": "VAL_COLOR_GRAY" ,
-      "rgba": "VAL_COLOR_RGBA" ,
+      "if":"SENTENCIA_IF",
+      "else":"SENTENCIA_ELSE",
+      "for":"SENTENCIA_FOR",
+      "do":"SENTENCIA_DO",
+      "while":"SENTENCIA_WHILE",
 
-      "%": "SIM_PORCENTAJE" ,
-      "(": "SIM_ABRIR_PARENTESIS" ,
-      ")": "SIM_CERRAR_PARENTESIS" ,
-      ";": "SIM_PUNTO_COMA" ,
-      ":": "SIM_DOS_PUNTOS" ,
-      ",": "SIM_COMA" ,
-      ".": "SIM_PUNTO" ,
-      "-": "SIM_MENOS" ,
+      "continue":"SENTENCIA_ESCAPE_CONTINUE",
+      "break":"SENTENCIA_ESCAPE_BREAK",
+      "return":"SENTENCIA_ESCAPE_RETURN",
+
+
+      "class":"PROPIEDAD_CLASE",
+      "function":"PROPIEDAD_FUNCTION",
+      "console":"PROPIEDAD_CONSOLE"  ,
+      "log":"PROPIEDAD_LOG"  ,
+      "this":"PROPIEDAD_THIS"  ,
+      "Math":"PROPIEDAD_MATH"  ,
+      "pow":"PROPIEDAD_POW"  ,
+
+      "=": "SIM_IGUAL" ,
       "\"": "SIM_COMILLA" ,
-      "/": "SIM_BARRA" ,
-      "*": "SIM_ASTERISCO" ,
+      "\'": "SIM_COMILLA_SIMPLE" ,
+      ";": "SIM_PUNTO_COMA" ,
       "{": "SIM_ABRIR_CORCHETES" ,
       "}": "SIM_CERRAR_CORCHETES" ,
-      "#": "SIM_HASHTAG" ,
-
+      ">": "SIM_MAYOR" ,
+      "<": "SIM_MENOR" ,
+      ".": "SIM_PUNTO" ,
+      ",": "SIM_COMA" ,
+      "-": "SIM_MENOS" ,
+      "+": "SIM_MAS" ,
+      "!": "SIM_EXCLAMACION" ,
+      "&": "SIM_INCLUSION" ,
+      "|": "SIM_BARRA_VERTICAL" ,
+      "(": "SIM_ABRIR_PARENTESIS" ,
+      ")": "SIM_CERRAR_PARENTESIS" ,
+      "/": "SIM_BARRA" ,
+       "*": "SIM_ASTERISCO" 
 
    }
    #"CADENA_TEXTO"
    #"NUMERO"
-   #"ID"
+   #"VARIABLE"
    #"COMENTARIO"
 
  
 
-   def analizarCss(self,txt):
+   def analizarJs(self,txt):
       self.texto=txt
       self.contador = -1
       self.fila=1
@@ -124,13 +90,20 @@ class lexicoCss:
             self.cadena=""
             self.contador+=1
             self.estadoCaracter2()
+         elif self.char=='\'' :
+            self.cadena+=self.char
+            nombre = self.lenguaje.get(self.cadena)
+            self.guardar(nombre,self.cadena)
+            self.cadena=""
+            self.contador+=1
+            self.estadoCaracter4()
          elif self.char=='/' :
             self.cadena+=self.char
             nombre = self.lenguaje.get(self.cadena)
             self.guardar(nombre,self.cadena)
             self.cadena=""
 
-            try:   
+            try:
                self.contador+=1
                self.char  = self.texto[self.contador]
                if(self.char == '*'):
@@ -140,6 +113,13 @@ class lexicoCss:
                   self.cadena=""
                   self.contador+=1
                   self.estadoCaracter()
+               elif self.char == '/':
+                  self.cadena+=self.char
+                  nombre = self.lenguaje.get(self.cadena)
+                  self.guardar(nombre,self.cadena)
+                  self.cadena=""
+                  self.contador+=1
+                  self.estadoCaracter3()
                else:
                   self.contador-=1
             except:
@@ -175,11 +155,6 @@ class lexicoCss:
       return str1
 
 
-
-
-
-
-
    def estadoLetra(self):
 
       self.char  = self.texto[self.contador]
@@ -211,7 +186,7 @@ class lexicoCss:
          self.char  = self.texto[self.contador]
          
       self.contador-=1
-      a =self.cadena.isdigit()
+      a=self.cadena.isdigit()
       if(a):
          self.guardar("NUMERO",self.cadena)
          self.cadena=""
@@ -243,6 +218,29 @@ class lexicoCss:
       self.guardar("SIM_COMILLA",self.char)
       self.cadena=""
 
+   def estadoCaracter3(self):
+      self.char  = self.texto[self.contador]
+      try:
+
+         while(not self.char=='\n'):
+            self.cadena+=self.char
+            self.contador+=1
+            self.char  = self.texto[self.contador]
+      except:
+         print("Falto el \\n")
+      self.guardar("COMENTARIO",self.cadena)
+      self.cadena=""
+      
+   def estadoCaracter4(self):
+      self.char  = self.texto[self.contador]
+      while(not self.char=='\''):
+         self.cadena+=self.char
+         self.contador+=1
+         self.char  = self.texto[self.contador]
+      
+      self.guardar("CADENA",self.cadena)
+      self.guardar("SIM_COMILLA_SIMPLE",self.char)
+      self.cadena=""
 
    def guardar(self, texto,val):
       print (texto +" : "+val)
