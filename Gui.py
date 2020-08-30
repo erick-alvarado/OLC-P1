@@ -4,7 +4,6 @@ from LexicoHtml import lexicoHtml
 from LexicoCss import lexicoCss
 from LexicoJs import lexicoJs
 
-
 class GUI:
 
     def __init__(self):
@@ -55,18 +54,35 @@ class GUI:
         self.archivo = ""
 
     def iniciarAnalisis(self):
-        self.lexJs.analizarJs(self.editor.get('1.0', 'end-1c'))
-        self.editor.delete(1.0, END)
-        self.editor.insert(INSERT, self.lexHTML.textoFinal())
+        if(self.tipoArchivo=="html"):
+            self.lexHTML.analizarHTML(self.editor.get('1.0', 'end-1c'))
+            self.editor.delete(1.0, END)
+            self.editor.insert(INSERT, self.lexHTML.textoFinal())
+            
+        if(self.tipoArchivo=="css"):
+            self.lexCSS.analizarCss(self.editor.get('1.0', 'end-1c'))
+            self.editor.delete(1.0, END)
+            self.editor.insert(INSERT, self.lexCSS.textoFinal())
+            
+        if(self.tipoArchivo=="js"):
+            self.lexJs.analizarJs(self.editor.get('1.0', 'end-1c'))
+            self.editor.delete(1.0, END)
+            self.editor.insert(INSERT, self.lexJs.textoFinal())
+        self.generateTable()
+            
+
 
     def openFile(self):
         self.archivo
         try:
-
             self.archivo = filedialog.askopenfilename(
                 title="Abrir Archivo", initialdir="C:/")
 
-            self.entrada = open(archivo)
+            a = self.archivo.split(".")
+            for x in a :
+                self.tipoArchivo = x 
+            
+            self.entrada = open(self.archivo)
             self.content = self.entrada.read()
 
             self.editor.delete(1.0, END)
@@ -102,9 +118,40 @@ class GUI:
             fguardar.close()
             archivo = guardar
         except:
-            print("-Ha ocurrido un error en guardar como")
-        
+            print("-Ha ocurrido un error en guardar como")    
 
+    def generateTable(self):
+        l = None
+        if(self.tipoArchivo=="html"):
+            l = lexicoHtml.lista_errores
+        if(self.tipoArchivo=="css"):
+            l = lexicoCss.lista_errores
+        if(self.tipoArchivo=="js"):
+            l = lexicoJs.lista_errores
+        
+        html  = "<!DOCTYPE html> <html> <head> <title>Errores lexicos</title> </head> <body> REPLACE </body> </html>"
+        
+        table = "<table> <tr> <th> Nombre</th> <th>Fila</th><th>Columna</th></tr>REPLACE</table>"
+        var = ""
+        for x in l:
+            pos1 = str(x.posicion_y)
+            pos2= str(x.posicion_x)
+            var+= "<tr> <th>"+x.texto+"</th> <th>"+pos1+"</th><th>"+pos2+"</th></tr>"
+
+        table = table.replace("REPLACE",var)
+        html = html.replace("REPLACE",table)
+
+        if(not l == None):
+            self.archivo
+            try:
+
+                guardar = filedialog.asksaveasfilename(title = "Guardar Archivo", initialdir = "C:/")
+                fguardar = open(guardar, "w+")
+                fguardar.write(html)
+                fguardar.close()
+                archivo = guardar
+            except:
+                print("-Ha ocurrido un error en guardar como")  
 
 
 start = GUI()

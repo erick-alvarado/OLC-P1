@@ -68,6 +68,7 @@ class lexicoJs:
  
 
    def analizarJs(self,txt):
+      self.lista_errores=[]
       self.texto=txt
       self.contador = -1
       self.fila=1
