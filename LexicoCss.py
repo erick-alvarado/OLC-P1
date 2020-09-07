@@ -86,8 +86,6 @@ class lexicoCss:
       ".": "SIM_PUNTO" ,
       "-": "SIM_MENOS" ,
       "\"": "SIM_COMILLA" ,
-      "/": "SIM_BARRA" ,
-      "*": "SIM_ASTERISCO" ,
       "{": "SIM_ABRIR_CORCHETES" ,
       "}": "SIM_CERRAR_CORCHETES" ,
       "#": "SIM_HASHTAG" ,
@@ -124,26 +122,23 @@ class lexicoCss:
             self.guardar(nombre,self.cadena)
             self.cadena=""
             self.contador+=1
+            self.columna+=1
             self.estadoCaracter2()
          elif self.char=='/' :
-            self.cadena+=self.char
-            nombre = self.lenguaje.get(self.cadena)
-            self.guardar(nombre,self.cadena)
-            self.cadena=""
 
             try:   
                self.contador+=1
+               self.columna+=1
                self.char  = self.texto[self.contador]
                if(self.char == '*'):
-                  self.cadena+=self.char
-                  nombre = self.lenguaje.get(self.cadena)
-                  self.guardar(nombre,self.cadena)
-                  self.cadena=""
                   self.contador+=1
+                  self.columna+=1
                   self.estadoCaracter()
                else:
+                  self.errorLexico("/",self.columna,self.fila)
                   self.contador-=1
             except:
+               self.errorLexico("/",self.columna,self.fila)
                a = 0
 
          elif not self.lenguaje.get(self.char) == None:
@@ -156,6 +151,7 @@ class lexicoCss:
          elif self.char.isalpha() or self.char=="-":
             self.cadena+=self.char
             self.contador+=1
+            self.columna+=1
             self.estadoLetra()
          elif self.char.isnumeric():
             self.cadena+=self.char
@@ -169,7 +165,7 @@ class lexicoCss:
       s = list(self.texto)
       
       for x in self.lista_pos_error:
-         s[x]=" "
+         s[x]=""
 
       str1 = ''.join(s)
           
@@ -187,6 +183,7 @@ class lexicoCss:
       while(self.char.isalpha() or self.texto[self.contador]=="-"):
          self.cadena+=self.char
          self.contador+=1
+         self.columna+=1
          self.char  = self.texto[self.contador]
 
       if self.texto[self.contador].isdigit():
@@ -205,10 +202,12 @@ class lexicoCss:
       
    def estadoNumero(self):
       self.contador+=1
+      self.columna+=1
       self.char  = self.texto[self.contador]
       while(self.char.isnumeric()):
          self.cadena+=self.char
          self.contador+=1
+         self.columna+=1
          self.char  = self.texto[self.contador]
          
       self.contador-=1
@@ -224,20 +223,38 @@ class lexicoCss:
 
    def estadoCaracter(self):
       self.char  = self.texto[self.contador]
-      while(not self.char=="*" and not self.texto[self.contador+1]=="/"):
-         self.cadena+=self.char
+      try:
+         num = self.contador
+         while(not self.char=="*" and not self.texto[self.contador+1]=="/"):
+            if(self.char == '\n'):
+               self.fila+=1
+            
+            self.cadena+=self.char
+            self.contador+=1
+            self.columna+=1
+            self.char  = self.texto[self.contador]
+         self.guardar("SIM_BARRA","/")
+         self.guardar("SIM_ASTERISCO","*")
+         self.guardar("COMENTARIO",self.cadena)
+         self.guardar("SIM_ASTERISCO","*")
+         self.guardar("SIM_BARRA","/")
+         self.cadena=""
+
          self.contador+=1
-         self.char  = self.texto[self.contador]
+      except:
+         self.errorLexico("/",self.columna,self.fila)
+         self.errorLexico("*",self.columna,self.fila)
+         self.contador=num
+         self.cadena=""
       
-      self.guardar("COMENTARIO",self.cadena)
-      self.cadena=""
-      self.contador-=1
+      
    
    def estadoCaracter2(self):
       self.char  = self.texto[self.contador]
       while(not self.char=='\"'):
          self.cadena+=self.char
          self.contador+=1
+         self.columna+=1
          self.char  = self.texto[self.contador]
       
       self.guardar("CADENA",self.cadena)

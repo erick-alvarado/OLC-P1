@@ -38,7 +38,7 @@ class GUI:
         self.frame2 = LabelFrame(self.root, text='Consola')
         self.frame2.pack(side="right", pady=20, padx=20)
 
-        self.editor = scrolledtext.ScrolledText(self.frame, width=50, height=25)
+        self.editor = scrolledtext.ScrolledText(self.frame, width=90, height=25)
         self.editor.pack(side="left")
         self.consola = scrolledtext.ScrolledText(self.frame2, width=50, height=25)
         self.consola.pack(side="right")
@@ -123,11 +123,11 @@ class GUI:
     def generateTable(self):
         l = None
         if(self.tipoArchivo=="html"):
-            l = lexicoHtml.lista_errores
+            l = self.lexHTML.lista_errores
         if(self.tipoArchivo=="css"):
-            l = lexicoCss.lista_errores
+            l = self.lexCSS.lista_errores
         if(self.tipoArchivo=="js"):
-            l = lexicoJs.lista_errores
+            l = self.lexJs.lista_errores
         
         html  = "<!DOCTYPE html> <html> <head> <title>Errores lexicos</title> </head> <body> REPLACE </body> </html>"
         

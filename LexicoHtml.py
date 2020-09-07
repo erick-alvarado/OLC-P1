@@ -94,6 +94,7 @@ class lexicoHtml:
             self.guardar(nombre,self.cadena)
             self.cadena=""
             self.contador+=1
+            self.columna+=1
             self.estadoCaracter2()
          elif self.char=='\"' :
             self.cadena+=self.char
@@ -101,6 +102,7 @@ class lexicoHtml:
             self.guardar(nombre,self.cadena)
             self.cadena=""
             self.contador+=1
+            self.columna+=1
             self.estadoCaracter()
          elif self.char=='\'' :
             self.cadena+=self.char
@@ -108,6 +110,7 @@ class lexicoHtml:
             self.guardar(nombre,self.cadena)
             self.cadena=""
             self.contador+=1
+            self.columna+=1
             self.estadoCaracter3()
          
          elif not self.lenguaje.get(self.char) == None:
@@ -119,6 +122,7 @@ class lexicoHtml:
          elif self.char.isalpha():
             self.cadena+=self.char
             self.contador+=1
+            self.columna+=1
             self.estadoLetra()
          elif self.char.isnumeric():
             self.cadena+=self.char
@@ -168,10 +172,12 @@ class lexicoHtml:
       
    def estadoNumero(self):
       self.contador+=1
+      self.columna+=1
       self.char  = self.texto[self.contador]
       while(self.char.isnumeric()):
          self.cadena+=self.char
          self.contador+=1
+         self.columna+=1
          self.char  = self.texto[self.contador]
          
       
@@ -184,6 +190,7 @@ class lexicoHtml:
       while(not self.char=="\""):
          self.cadena+=self.char
          self.contador+=1
+         self.columna+=1
          self.char  = self.texto[self.contador]
 
       self.guardar("CADENA_TEXTO",self.cadena)
@@ -194,6 +201,7 @@ class lexicoHtml:
       while(not self.char=='\''):
          self.cadena+=self.char
          self.contador+=1
+         self.columna+=1
          self.char  = self.texto[self.contador]
 
       self.guardar("CADENA_TEXTO",self.cadena)
@@ -206,6 +214,7 @@ class lexicoHtml:
             if(not self.char == '\n' and not self.char == '\t' and not self.char == '\r' ):
                self.cadena+=self.char
             self.contador+=1
+            self.columna+=1
             self.char  = self.texto[self.contador]
 
          if len(self.cadena)>0:
