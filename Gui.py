@@ -61,8 +61,6 @@ class GUI:
             
         if(self.tipoArchivo=="css"):
             self.lexCSS.analizarCss(self.editor.get('1.0', 'end-1c'))
-            self.editor.delete(1.0, END)
-            self.editor.insert(INSERT, self.lexCSS.textoFinal())
             
         if(self.tipoArchivo=="js"):
             self.lexJs.analizarJs(self.editor.get('1.0', 'end-1c'))
@@ -123,10 +121,13 @@ class GUI:
     def generateTable(self):
         l = None
         if(self.tipoArchivo=="html"):
+            print ("Lexico Html")
             l = self.lexHTML.lista_errores
         if(self.tipoArchivo=="css"):
+            print ("Lexico Css")
             l = self.lexCSS.lista_errores
         if(self.tipoArchivo=="js"):
+            print ("Lexico JS")
             l = self.lexJs.lista_errores
         
         html  = "<!DOCTYPE html> <html> <head> <title>Errores lexicos</title> </head> <body> REPLACE </body> </html>"

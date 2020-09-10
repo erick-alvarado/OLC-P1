@@ -1,18 +1,11 @@
+
 from enum import Enum
 from Token import Token
 from Error import Error
 
+
 class lexicoCss:
    
-   fila = 1
-   columna = 0
-   cadena = ""
-   contador =-1
-   char = ''
-   texto = ""
-   lista_token = []
-   lista_errores =[]
-   lista_pos_error=[]
 
    lenguaje = {
       "color":"PROPIEDAD_COLOR",
@@ -97,17 +90,22 @@ class lexicoCss:
    #"ID"
    #"COMENTARIO"
 
- 
+   def resetear(self):
+      self.fila = 1
+      self.columna = 0
+      self.cadena = ""
+      self.contador =-1
+      self.char = ''
+      self.texto = ""
+      self.lista_token = []
+      self.lista_errores =[]
+      self.lista_pos_error=[]
+
 
    def analizarCss(self,txt):
-      self.lista_errores=[]
-      self.texto=txt
-      self.contador = -1
-      self.fila=1
-      self.columna=0
-      fila = 1
+      self.resetear()
+      self.texto = txt
       while(self.contador<len(self.texto)-1):
-         
          self.contador+=1
          self.columna+=1
          self.char  = self.texto[self.contador]
@@ -117,6 +115,7 @@ class lexicoCss:
             self.columna=0
             self.fila+=1
          elif self.char=='\"' :
+            print("S0->S5")
             self.cadena+=self.char
             nombre = self.lenguaje.get(self.cadena)
             self.guardar(nombre,self.cadena)
@@ -125,12 +124,13 @@ class lexicoCss:
             self.columna+=1
             self.estadoCaracter2()
          elif self.char=='/' :
-
+            print("S0->S8")
             try:   
                self.contador+=1
                self.columna+=1
                self.char  = self.texto[self.contador]
                if(self.char == '*'):
+                  print("S8->S3")
                   self.contador+=1
                   self.columna+=1
                   self.estadoCaracter()
@@ -142,39 +142,25 @@ class lexicoCss:
                a = 0
 
          elif not self.lenguaje.get(self.char) == None:
-
+            print("S0->S1")
             self.cadena+=self.char
             nombre = self.lenguaje.get(self.cadena)
             self.guardar(nombre,self.cadena)
             self.cadena=""
 
          elif self.char.isalpha() or self.char=="-":
+            print("S0->S2")
             self.cadena+=self.char
             self.contador+=1
             self.columna+=1
             self.estadoLetra()
          elif self.char.isnumeric():
+            print("S0->S4")
             self.cadena+=self.char
             self.estadoNumero()
          else:
             self.cadena+=self.char
             self.errorLexico(self.cadena,self.columna,self.fila)
-
-
-   def textoFinal(self):
-      s = list(self.texto)
-      
-      for x in self.lista_pos_error:
-         s[x]=""
-
-      str1 = ''.join(s)
-          
-      return str1
-
-
-
-
-
 
 
    def estadoLetra(self):
@@ -187,6 +173,7 @@ class lexicoCss:
          self.char  = self.texto[self.contador]
 
       if self.texto[self.contador].isdigit():
+         print("S2->S4")
          self.contador-=1
          self.estadoNumero()
 
@@ -225,9 +212,14 @@ class lexicoCss:
       self.char  = self.texto[self.contador]
       try:
          num = self.contador
-         while(not self.char=="*" and not self.texto[self.contador+1]=="/"):
+         while(True):
+            if(self.char=='*' and self.texto[self.contador+1]=='/'):
+               
+               
+               break
             if(self.char == '\n'):
                self.fila+=1
+               self.columna=0
             
             self.cadena+=self.char
             self.contador+=1
@@ -236,7 +228,9 @@ class lexicoCss:
          self.guardar("SIM_BARRA","/")
          self.guardar("SIM_ASTERISCO","*")
          self.guardar("COMENTARIO",self.cadena)
+         print("S3->S9")
          self.guardar("SIM_ASTERISCO","*")
+         print("S9->S7")
          self.guardar("SIM_BARRA","/")
          self.cadena=""
 
@@ -256,7 +250,7 @@ class lexicoCss:
          self.contador+=1
          self.columna+=1
          self.char  = self.texto[self.contador]
-      
+      print("S5->S6")
       self.guardar("CADENA",self.cadena)
       self.guardar("SIM_COMILLA",self.char)
       self.cadena=""
@@ -271,7 +265,8 @@ class lexicoCss:
       self.lista_pos_error.append(self.contador)
       self.cadena = ""
       self.lista_errores.append(Error(x,y,"Cadena no reconocida: "+texto))
-
+   
+   
    
 
 
