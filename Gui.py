@@ -66,6 +66,7 @@ class GUI:
             self.lexJs.analizarJs(self.editor.get('1.0', 'end-1c'))
             self.editor.delete(1.0, END)
             self.editor.insert(INSERT, self.lexJs.textoFinal())
+            self.lexJs.generarGrafica()
         self.generateTable()
             
 
