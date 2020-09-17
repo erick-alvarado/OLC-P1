@@ -82,8 +82,6 @@ class lexicoCss:
       "{": "SIM_ABRIR_CORCHETES" ,
       "}": "SIM_CERRAR_CORCHETES" ,
       "#": "SIM_HASHTAG" ,
-
-
    }
    #"CADENA_TEXTO"
    #"NUMERO"
@@ -100,7 +98,7 @@ class lexicoCss:
       self.lista_token = []
       self.lista_errores =[]
       self.lista_pos_error=[]
-
+      self.bitacora= ""
 
    def analizarCss(self,txt):
       self.resetear()
@@ -116,21 +114,19 @@ class lexicoCss:
             self.fila+=1
          elif self.char=='\"' :
             print("S0->S5")
-            self.cadena+=self.char
-            nombre = self.lenguaje.get(self.cadena)
-            self.guardar(nombre,self.cadena)
-            self.cadena=""
+            self.bitacora+="S0->S5\n"
             self.contador+=1
             self.columna+=1
             self.estadoCaracter2()
          elif self.char=='/' :
             print("S0->S8")
+            self.bitacora+="S0->S8\n"
             try:   
                self.contador+=1
                self.columna+=1
                self.char  = self.texto[self.contador]
                if(self.char == '*'):
-                  print("S8->S3")
+
                   self.contador+=1
                   self.columna+=1
                   self.estadoCaracter()
@@ -143,6 +139,7 @@ class lexicoCss:
 
          elif not self.lenguaje.get(self.char) == None:
             print("S0->S1")
+            self.bitacora+="S0->S1\n"
             self.cadena+=self.char
             nombre = self.lenguaje.get(self.cadena)
             self.guardar(nombre,self.cadena)
@@ -150,114 +147,159 @@ class lexicoCss:
 
          elif self.char.isalpha() or self.char=="-":
             print("S0->S2")
+            self.bitacora+="S0->S2\n"
             self.cadena+=self.char
             self.contador+=1
             self.columna+=1
             self.estadoLetra()
          elif self.char.isnumeric():
             print("S0->S4")
+            self.bitacora+="S0->S4\n"
             self.cadena+=self.char
             self.estadoNumero()
          else:
             self.cadena+=self.char
             self.errorLexico(self.cadena,self.columna,self.fila)
 
-
    def estadoLetra(self):
+      try:
 
-      self.char  = self.texto[self.contador]
-      while(self.char.isalpha() or self.texto[self.contador]=="-"):
-         self.cadena+=self.char
-         self.contador+=1
-         self.columna+=1
          self.char  = self.texto[self.contador]
+         while(self.char.isalpha() or self.texto[self.contador]=="-"):
+            self.cadena+=self.char
+            self.contador+=1
+            self.columna+=1
+            self.char  = self.texto[self.contador]
 
-      if self.texto[self.contador].isdigit():
-         print("S2->S4")
-         self.contador-=1
-         self.estadoNumero()
+         if self.texto[self.contador].isdigit():
+            self.contador-=1
+            self.columna-=1
+            print("S2->S4")
+            self.bitacora+="S2->S4\n"
+            self.estadoNumero()
 
-      else:
+         else:
+            self.contador-=1
+            nombre = self.lenguaje.get(self.cadena)
+            if(not nombre==None):
+               self.guardar(nombre,self.cadena)
+            else:
+               self.guardar("ID",self.cadena)
+         self.cadena=""
+      except:
          self.contador-=1
          nombre = self.lenguaje.get(self.cadena)
          if(not nombre==None):
             self.guardar(nombre,self.cadena)
          else:
             self.guardar("ID",self.cadena)
-      self.cadena=""
-      
-      
+         self.cadena=""
+           
    def estadoNumero(self):
-      self.contador+=1
-      self.columna+=1
-      self.char  = self.texto[self.contador]
-      while(self.char.isnumeric()):
-         self.cadena+=self.char
+      try:
+         self.q7 = True
          self.contador+=1
          self.columna+=1
          self.char  = self.texto[self.contador]
-         
-      self.contador-=1
-      a =self.cadena.isdigit()
-      if(a):
-         self.guardar("NUMERO",self.cadena)
-         self.cadena=""
-
-      else:
-         self.guardar("ID",self.cadena)
-         self.cadena=""
-      
-
-   def estadoCaracter(self):
-      self.char  = self.texto[self.contador]
-      try:
-         num = self.contador
-         while(True):
-            if(self.char=='*' and self.texto[self.contador+1]=='/'):
-               
-               
-               break
-            if(self.char == '\n'):
-               self.fila+=1
-               self.columna=0
-            
+         while(self.char.isnumeric()):
             self.cadena+=self.char
             self.contador+=1
             self.columna+=1
             self.char  = self.texto[self.contador]
+            
+         self.contador-=1
+         a=self.cadena.isdigit()
+         if(a):
+            self.guardar("NUMERO",self.cadena)
+            self.cadena=""
+
+         else:
+            self.guardar("ID",self.cadena)
+            self.cadena=""
+      except:
+         self.contador-=1
+         a=self.cadena.isdigit()
+         if(a):
+            self.guardar("NUMERO",self.cadena)
+            self.cadena=""
+         else:
+            self.guardar("ID",self.cadena)
+            self.cadena=""
+
+   def estadoCaracter(self):
+      self.char  = self.texto[self.contador]
+      try:
+         num = self.contador-1
+         colum = self.columna-1
+         fil = self.fila
+         while(True):
+            if(self.char=='*' and self.texto[self.contador+1]=='/'):
+               break
+            if(self.char == '\n'):
+               self.fila+=1
+               self.columna=0
+            self.cadena+=self.char
+            self.contador+=1
+            self.columna+=1
+            self.char  = self.texto[self.contador]
+         
          self.guardar("SIM_BARRA","/")
+         print("S8->S3")
+         self.bitacora+="S8->S3\n"
          self.guardar("SIM_ASTERISCO","*")
          self.guardar("COMENTARIO",self.cadena)
-         print("S3->S9")
          self.guardar("SIM_ASTERISCO","*")
-         print("S9->S7")
+         print("S3->S9")
+         self.bitacora+="S3->S9\n"
          self.guardar("SIM_BARRA","/")
+         print("S9->S7")
+         self.bitacora+="S9->S7\n"
          self.cadena=""
-
-         self.contador+=1
-      except:
-         self.errorLexico("/",self.columna,self.fila)
-         self.errorLexico("*",self.columna,self.fila)
-         self.contador=num
-         self.cadena=""
-      
-      
-   
-   def estadoCaracter2(self):
-      self.char  = self.texto[self.contador]
-      while(not self.char=='\"'):
-         self.cadena+=self.char
          self.contador+=1
          self.columna+=1
-         self.char  = self.texto[self.contador]
-      print("S5->S6")
-      self.guardar("CADENA",self.cadena)
-      self.guardar("SIM_COMILLA",self.char)
-      self.cadena=""
+         self.q5=True
 
+      except:
+         
+         self.contador=num
+         self.columna= colum
+         self.fila=fil
+         self.cadena=""
+         self.errorLexico("/",self.columna-1,self.fila)
+      
+   def estadoCaracter2(self):
+      try:
+         num = self.contador-1
+         colum = self.columna-1
+         fil = self.fila
+         self.char  = self.texto[self.contador]
+         while(not self.char=='\"'):
+            if(self.char == '\n'):
+               self.fila+=1
+               self.columna=0
+            self.cadena+=self.char
+            self.contador+=1
+            self.columna+=1
+            self.char  = self.texto[self.contador]
+         self.q12=True
+         
+         self.guardar("SIM_COMILLA",self.char)
+         self.guardar("CADENA",self.cadena)
+         print("S5->S6")
+         self.bitacora+="S5->S6\n"
+         self.guardar("SIM_COMILLA",self.char)
+         
+         self.cadena=""
+      except:
+         self.contador=num
+         self.columna= colum
+         self.fila=fil
+         self.cadena='\"'
+         self.errorLexico(self.cadena,self.columna+1,self.fila)
 
    def guardar(self, texto,val):
-      print (texto +" : "+val)
+      print(texto +" : "+val)
+      self.bitacora+= texto +" : "+val+"\n"
       self.lista_token.append(Token(texto,val))
 
    def errorLexico(self,texto,x,y):

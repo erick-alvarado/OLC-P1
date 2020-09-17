@@ -3,17 +3,21 @@ from tkinter.ttk import LabelFrame
 from LexicoHtml import lexicoHtml
 from LexicoCss import lexicoCss
 from LexicoJs import lexicoJs
-
+from LexicoOperacion import lexicoOperacion
+from SintacticoOperacion import sintacticoOperacion
 class GUI:
 
     def __init__(self):
         self.root = Tk()
         self.root.title("Proyecto 1")
         self.archivo = ""
+        self.rutaFinal =""
 
         self.lexHTML = lexicoHtml()
         self.lexCSS = lexicoCss()
         self.lexJs = lexicoJs()
+        self.lexOp = lexicoOperacion()
+        self.sincOp = sintacticoOperacion()
 
         self.barraMenu = Menu(self.root)
         self.root.config(menu=self.barraMenu, width=1000, height=600)
@@ -38,9 +42,9 @@ class GUI:
         self.frame2 = LabelFrame(self.root, text='Consola')
         self.frame2.pack(side="right", pady=20, padx=20)
 
-        self.editor = scrolledtext.ScrolledText(self.frame, width=90, height=25)
+        self.editor = scrolledtext.ScrolledText(self.frame, width=85, height=25)
         self.editor.pack(side="left")
-        self.consola = scrolledtext.ScrolledText(self.frame2, width=50, height=25)
+        self.consola = scrolledtext.ScrolledText(self.frame2, width=55, height=25)
         self.consola.pack(side="right")
 
         self.btn = Button(self.root, text="Analizar", command=self.iniciarAnalisis)
@@ -56,9 +60,6 @@ class GUI:
     def iniciarAnalisis(self):
         if(self.tipoArchivo=="html"):
             self.lexHTML.analizarHTML(self.editor.get('1.0', 'end-1c'))
-            self.editor.delete(1.0, END)
-            self.editor.insert(INSERT, self.lexHTML.textoFinal())
-            
         if(self.tipoArchivo=="css"):
             self.lexCSS.analizarCss(self.editor.get('1.0', 'end-1c'))
             
@@ -67,6 +68,9 @@ class GUI:
             self.editor.delete(1.0, END)
             self.editor.insert(INSERT, self.lexJs.textoFinal())
             self.lexJs.generarGrafica()
+        if(self.tipoArchivo=="opr"):
+            self.lexOp.analizarOp(self.editor.get('1.0', 'end-1c'))
+            self.sincOp.analizarSintactico(self.lexOp.lista_token)
         self.generateTable()
             
 
@@ -110,16 +114,18 @@ class GUI:
     def saveAs(self):
         self.archivo
         try:
-
-            guardar = filedialog.asksaveasfilename(title = "Guardar Archivo", initialdir = "C:/")
-            fguardar = open(guardar, "w+")
-            fguardar.write(self.editor.get(1.0, END))
-            fguardar.close()
-            archivo = guardar
+                guardar = filedialog.asksaveasfilename(title = "Guardar Archivo", initialdir = "C:/")
+                fguardar = open(guardar, "w+")
+                fguardar.write(self.editor.get(1.0, END))
+                fguardar.close()
+                archivo = guardar
+            
         except:
             print("-Ha ocurrido un error en guardar como")    
 
     def generateTable(self):
+        var = ""
+        consola= ""
         l = None
         if(self.tipoArchivo=="html"):
             print ("Lexico Html")
@@ -127,26 +133,33 @@ class GUI:
         if(self.tipoArchivo=="css"):
             print ("Lexico Css")
             l = self.lexCSS.lista_errores
+            consola+= self.lexCSS.bitacora
         if(self.tipoArchivo=="js"):
             print ("Lexico JS")
             l = self.lexJs.lista_errores
+        if(self.tipoArchivo=="opr"):
+            print ("Lexico JS")
+            l = self.lexOp.lista_errores
+            consola+=self.sincOp.texto
         
         html  = "<!DOCTYPE html> <html> <head> <title>Errores lexicos</title> </head> <body> REPLACE </body> </html>"
         
         table = "<table> <tr> <th> Nombre</th> <th>Fila</th><th>Columna</th></tr>REPLACE</table>"
-        var = ""
+        
         for x in l:
+            consola+=x.texto+"     Fila: "+str(x.posicion_y)+"     Columna: "+str(x.posicion_x)+"\n"
             pos1 = str(x.posicion_y)
             pos2= str(x.posicion_x)
             var+= "<tr> <th>"+x.texto+"</th> <th>"+pos1+"</th><th>"+pos2+"</th></tr>"
 
         table = table.replace("REPLACE",var)
         html = html.replace("REPLACE",table)
-
+        
         if(not l == None):
             self.archivo
             try:
-
+                self.consola.delete(1.0, END)
+                self.consola.insert(INSERT, consola)
                 guardar = filedialog.asksaveasfilename(title = "Guardar Archivo", initialdir = "C:/")
                 fguardar = open(guardar, "w+")
                 fguardar.write(html)

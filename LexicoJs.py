@@ -5,10 +5,6 @@ from Error import Error
 
 class lexicoJs:
    
-   
-   
-   
-   
    lenguaje = {
       "var":"TIPO_VARIABLE",
 
@@ -54,7 +50,6 @@ class lexicoJs:
        "*": "SIM_ASTERISCO",
         "&&": "SIM_AND",
          "||": "SIM_OR",
-
    }
    #"CADENA_TEXTO"
    #"NUMERO"
@@ -100,19 +95,10 @@ class lexicoJs:
             self.columna=0
             self.fila+=1
          elif self.char=='\"' :
-            
-            self.cadena+=self.char
-            nombre = self.lenguaje.get(self.cadena)
-            self.guardar(nombre,self.cadena)
-            self.cadena=""
             self.contador+=1
             self.columna+=1
             self.estadoCaracter2()
          elif self.char=='\'' :
-            self.cadena+=self.char
-            nombre = self.lenguaje.get(self.cadena)
-            self.guardar(nombre,self.cadena)
-            self.cadena=""
             self.contador+=1
             self.columna+=1
             self.estadoCaracter4()
@@ -120,6 +106,7 @@ class lexicoJs:
                self.columna+=1
                self.cadena= "&&"
                self.contador+=1
+               self.columna+=2
                nombre = self.lenguaje.get(self.cadena)
                self.guardar(nombre,self.cadena)
                self.cadena=""
@@ -128,6 +115,7 @@ class lexicoJs:
                self.columna+=1
                self.cadena= "||"
                self.contador+=1
+               self.columna+=2
                nombre = self.lenguaje.get(self.cadena)
                self.guardar(nombre,self.cadena)
                self.cadena=""
@@ -161,6 +149,7 @@ class lexicoJs:
                   self.estadoCaracter3()
                else:
                   self.contador-=1
+                  self.columna-=1
             except:
                a = 0
 
@@ -184,7 +173,6 @@ class lexicoJs:
             self.cadena+=self.char
             self.errorLexico(self.cadena,self.columna,self.fila)
 
-
    def textoFinal(self):
       s = list(self.texto)
       
@@ -195,57 +183,75 @@ class lexicoJs:
           
       return str1
 
-
    def estadoLetra(self):
+      try:
 
-      self.char  = self.texto[self.contador]
-      while(self.char.isalpha() or self.texto[self.contador]=="-"):
-         self.cadena+=self.char
-         self.contador+=1
-         self.columna+=1
          self.char  = self.texto[self.contador]
+         while(self.char.isalpha() or self.texto[self.contador]=="-"):
+            self.cadena+=self.char
+            self.contador+=1
+            self.columna+=1
+            self.char  = self.texto[self.contador]
 
-      if self.texto[self.contador].isdigit():
-         self.contador-=1
-         self.estadoNumero()
+         if self.texto[self.contador].isdigit():
+            self.contador-=1
+            self.columna-=1
+            self.estadoNumero()
 
-      else:
+         else:
+            self.contador-=1
+            nombre = self.lenguaje.get(self.cadena)
+            if(not nombre==None):
+               self.guardar(nombre,self.cadena)
+            else:
+               self.guardar("ID",self.cadena)
+         self.cadena=""
+      except:
          self.contador-=1
          nombre = self.lenguaje.get(self.cadena)
          if(not nombre==None):
             self.guardar(nombre,self.cadena)
          else:
             self.guardar("ID",self.cadena)
-      self.cadena=""
-      
-      
+         self.cadena=""
+        
    def estadoNumero(self):
-      self.q7 = True
-      self.contador+=1
-      self.char  = self.texto[self.contador]
-      while(self.char.isnumeric()):
-         self.cadena+=self.char
+      try:
+         self.q7 = True
          self.contador+=1
          self.columna+=1
          self.char  = self.texto[self.contador]
-         
-      self.contador-=1
-      a=self.cadena.isdigit()
-      if(a):
-         self.guardar("NUMERO",self.cadena)
-         self.cadena=""
+         while(self.char.isnumeric()):
+            self.cadena+=self.char
+            self.contador+=1
+            self.columna+=1
+            self.char  = self.texto[self.contador]
+            
+         self.contador-=1
+         a=self.cadena.isdigit()
+         if(a):
+            self.guardar("NUMERO",self.cadena)
+            self.cadena=""
 
-      else:
-         self.guardar("ID",self.cadena)
-         self.cadena=""
-      
+         else:
+            self.guardar("ID",self.cadena)
+            self.cadena=""
+      except:
+         self.contador-=1
+         a=self.cadena.isdigit()
+         if(a):
+            self.guardar("NUMERO",self.cadena)
+            self.cadena=""
+         else:
+            self.guardar("ID",self.cadena)
+            self.cadena=""
 
    def estadoCaracter(self):
       self.char  = self.texto[self.contador]
       try:
-         num = self.contador
-         print(self.char)
-         print(self.texto[self.contador+1])
+         num = self.contador-1
+         colum = self.columna-1
+         fil = self.fila
          while(True):
             if(self.char=='*' and self.texto[self.contador+1]=='/'):
                break
@@ -263,23 +269,40 @@ class lexicoJs:
          self.guardar("SIM_BARRA","/")
          self.cadena=""
          self.contador+=1
+         self.columna+=1
          self.q5=True
 
       except:
          self.contador=num
+         self.columna= colum
+         self.fila=fil
          self.cadena=""
    
    def estadoCaracter2(self):
-      self.char  = self.texto[self.contador]
-      while(not self.char=='\"'):
-         self.cadena+=self.char
-         self.contador+=1
-         self.columna+=1
+      try:
+         num = self.contador-1
+         colum = self.columna-1
+         fil = self.fila
          self.char  = self.texto[self.contador]
-      self.q12=True
-      self.guardar("CADENA",self.cadena)
-      self.guardar("SIM_COMILLA",self.char)
-      self.cadena=""
+         while(not self.char=='\"'):
+            if(self.char == '\n'):
+               self.fila+=1
+               self.columna=0
+            self.cadena+=self.char
+            self.contador+=1
+            self.columna+=1
+            self.char  = self.texto[self.contador]
+         self.q12=True
+         self.guardar("SIM_COMILLA",self.char)
+         self.guardar("CADENA",self.cadena)
+         self.guardar("SIM_COMILLA",self.char)
+         self.cadena=""
+      except:
+         self.contador=num
+         self.columna= colum
+         self.fila=fil
+         self.cadena='\"'
+         self.errorLexico(self.cadena,self.columna+1,self.fila)
 
    def estadoCaracter3(self):
       self.char  = self.texto[self.contador]
@@ -297,16 +320,27 @@ class lexicoJs:
       self.q10=True
       
    def estadoCaracter4(self):
-      self.char  = self.texto[self.contador]
-      while(not self.char=='\''):
-         self.cadena+=self.char
-         self.contador+=1
-         self.columna+=1
+      try:
+         num = self.contador-1
+         colum = self.columna-1
+         fil = self.fila
          self.char  = self.texto[self.contador]
-      self.q13=True
-      self.guardar("CADENA",self.cadena)
-      self.guardar("SIM_COMILLA_SIMPLE",self.char)
-      self.cadena=""
+         while(not self.char=='\''):
+            self.cadena+=self.char
+            self.contador+=1
+            self.columna+=1
+            self.char  = self.texto[self.contador]
+         self.q13=True
+         self.guardar("SIM_COMILLA_SIMPLE",self.char)
+         self.guardar("CADENA",self.cadena)
+         self.guardar("SIM_COMILLA_SIMPLE",self.char)
+         self.cadena=""
+      except:
+         self.contador=num
+         self.columna= colum
+         self.fila=fil
+         self.cadena='\''
+         self.errorLexico(self.cadena,self.columna+1,self.fila)
 
    def guardar(self, texto,val):
       print (texto +" : "+val)
